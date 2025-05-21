@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+import CookieConsent from './components/CookieConsent.vue'
+
+window.addEventListener('cookie-consent-updated', () => {
+  const newConsent = JSON.parse(localStorage.getItem('cookie_consent') || '{}')
+  if (newConsent.analytics) {
+    location.reload()
+  }
+})
 </script>
 
 <template>
@@ -16,6 +24,7 @@ import HelloWorld from './components/HelloWorld.vue'
       </nav>
     </div>
   </header>
+  <CookieConsent />
 
   <RouterView />
 </template>
