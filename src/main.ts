@@ -79,6 +79,9 @@ if (stored) {
             page_path: window.location.pathname,
             page_title: document.title,
           })
+          window.dataLayer.push({
+            event: 'analytics_consent_granted',
+          })
         }
       } else {
         setTimeout(applyConsent, 50)
