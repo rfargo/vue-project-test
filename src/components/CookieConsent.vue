@@ -31,8 +31,12 @@ const consent = ref<Consent>({
 onMounted(() => {
   const stored = localStorage.getItem('cookie_consent')
   if (stored) {
-    consent.value = JSON.parse(stored)
-    consentSaved.value = true
+    try {
+      consent.value = JSON.parse(stored)
+      consentSaved.value = true
+    } catch {
+      console.warn('Invalid consent JSON in localStorage')
+    }
   }
 })
 
