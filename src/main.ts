@@ -14,6 +14,9 @@ app.use(router)
 
 app.mount('#app')
 
+// Ensure dataLayer exists first
+window.dataLayer = window.dataLayer || []
+
 window.gtag =
   window.gtag ||
   function () {
@@ -30,7 +33,6 @@ window.gtag('consent', 'default', {
 })
 
 // Push default denied consent before anything else
-window.dataLayer = window.dataLayer || []
 window.dataLayer.push({
   event: 'default_consent',
   default: {
