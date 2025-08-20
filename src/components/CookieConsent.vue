@@ -33,6 +33,8 @@ function applyConsentToGTM(newConsent: Consent): void {
       analytics_storage: newConsent.analytics ? 'granted' : 'denied',
       ad_storage: newConsent.ads ? 'granted' : 'denied',
       security_storage: newConsent.errorTracking ? 'granted' : 'denied',
+      ad_personalization: newConsent.analytics ? 'granted' : 'denied',
+      ad_user_data: newConsent.analytics ? 'granted' : 'denied',
     })
 
     console.log('GTM consent updated!')
