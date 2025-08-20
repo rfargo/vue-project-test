@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ConsentBanner from '@/components/ConsentBanner.vue'
+import CookieConsent from './components/CookieConsent.vue'
 </script>
 
 <template>
@@ -11,7 +11,7 @@ import ConsentBanner from '@/components/ConsentBanner.vue'
     <button id="button">Click Me!</button>
   </main>
 
-  <ConsentBanner />
+  <CookieConsent />
 </template>
 
 <style scoped>

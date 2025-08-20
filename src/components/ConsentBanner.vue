@@ -1,40 +1,54 @@
-<!-- eslint-disable vue/block-lang -->
-<script setup>
-import { ref, onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted, type Ref } from 'vue'
 
-const showBanner = ref(false)
+// Define a type for the possible consent statuses for better type safety.
+type ConsentStatus = 'granted' | 'denied'
+
+// To make TypeScript aware of gtag and dataLayer on the window object,
+// we augment the global Window interface.
+declare global {
+  interface Window {
+    dataLayer: Array<Record<string, unknown>>
+    gtag: ((...args: unknown[]) => void) | undefined
+  }
+}
+
+// Explicitly type the ref as a boolean.
+const showBanner: Ref<boolean> = ref(false)
 const CONSENT_KEY = 'cookie_consent'
 
 /**
  * Handles the 'Accept' action.
+ * The ': void' indicates that this function doesn't return a value.
  */
-function handleAccept() {
+function handleAccept(): void {
   console.log('User Accepted Consent')
 
+  // Now we can call gtag and dataLayer without casting to 'any'.
   window.gtag('consent', 'update', {
     analytics_storage: 'granted',
   })
 
-  // 🔥 This is the line that has changed
   window.dataLayer.push({
     event: 'analytics_consent_granted',
   })
 
-  localStorage.setItem(CONSENT_KEY, 'granted')
+  // The 'granted' string now matches our ConsentStatus type.
+  localStorage.setItem(CONSENT_KEY, 'granted' as ConsentStatus)
   showBanner.value = false
 }
 
 /**
  * Handles the 'Decline' action.
  */
-function handleDecline() {
+function handleDecline(): void {
   console.log('User Declined Consent')
 
   window.gtag('consent', 'update', {
     analytics_storage: 'denied',
   })
 
-  localStorage.setItem(CONSENT_KEY, 'denied')
+  localStorage.setItem(CONSENT_KEY, 'denied' as ConsentStatus)
   showBanner.value = false
 }
 
