@@ -51,9 +51,11 @@ if (stored) {
       event: 'default_consent',
       consent: {
         analytics_storage: consent.analytics ? 'granted' : 'denied',
-        ad_storage: consent.ads ? 'granted' : 'denied',
+        ad_storage: consent.analytics ? 'granted' : 'denied',
         security_storage: consent.errorTracking ? 'granted' : 'denied',
         error_tracking: consent.errorTracking ? 'granted' : 'denied',
+        ad_personalization: consent.analytics ? 'granted' : 'denied',
+        ad_user_data: consent.analytics ? 'granted' : 'denied',
       },
     })
 
@@ -68,8 +70,11 @@ if (stored) {
       if (typeof window.gtag === 'function') {
         window.gtag('consent', 'update', {
           analytics_storage: consent.analytics ? 'granted' : 'denied',
-          ad_storage: consent.ads ? 'granted' : 'denied',
+          ad_storage: consent.analytics ? 'granted' : 'denied',
           security_storage: consent.errorTracking ? 'granted' : 'denied',
+          error_tracking: consent.errorTracking ? 'granted' : 'denied',
+          ad_personalization: consent.analytics ? 'granted' : 'denied',
+          ad_user_data: consent.analytics ? 'granted' : 'denied',
         })
 
         // Fire a manual page_view event to ensure GA starts after consent
@@ -78,9 +83,6 @@ if (stored) {
             page_location: window.location.href,
             page_path: window.location.pathname,
             page_title: document.title,
-          })
-          window.dataLayer.push({
-            event: 'analytics_consent_granted',
           })
         }
       } else {

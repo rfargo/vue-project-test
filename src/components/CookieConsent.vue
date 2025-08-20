@@ -43,8 +43,11 @@ function saveConsent() {
   // Apply to GTM
   window.gtag?.('consent', 'update', {
     analytics_storage: consent.value.analytics ? 'granted' : 'denied',
-    ad_storage: consent.value.ads ? 'granted' : 'denied',
+    ad_storage: consent.value.analytics ? 'granted' : 'denied',
     security_storage: consent.value.errorTracking ? 'granted' : 'denied',
+    error_tracking: consent.value.errorTracking ? 'granted' : 'denied',
+    ad_personalization: consent.value.analytics ? 'granted' : 'denied',
+    ad_user_data: consent.value.analytics ? 'granted' : 'denied',
   })
 
   window.dataLayer = window.dataLayer || []
