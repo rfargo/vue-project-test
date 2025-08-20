@@ -27,26 +27,18 @@ const consent: Ref<Consent> = ref({
  * This function will be called both for returning visitors and after a new choice is saved.
  */
 function applyConsentToGTM(newConsent: Consent): void {
-  // Ensure gtag function exists before calling it
   if (typeof window.gtag === 'function') {
+    // This is the essential part. It tells GTM the user's choice.
     window.gtag('consent', 'update', {
       analytics_storage: newConsent.analytics ? 'granted' : 'denied',
       ad_storage: newConsent.ads ? 'granted' : 'denied',
       security_storage: newConsent.errorTracking ? 'granted' : 'denied',
-      // Note: There's no standard 'error_tracking' type in GTM's consent model.
-      // 'security_storage' is often used for this purpose.
     })
 
-    console.log('GTM consent updated:', {
-      analytics_storage: newConsent.analytics ? 'granted' : 'denied',
-    })
+    console.log('GTM consent updated!')
 
-    // If analytics was just granted, push a custom event to trigger those tags
-    if (newConsent.analytics) {
-      window.dataLayer.push({
-        event: 'analytics_consent_granted',
-      })
-    }
+    // The dataLayer.push for a custom event is no longer needed to fire the GA4 tag.
+    // GTM will automatically fire the queued tags after the 'consent update' command.
   }
 }
 
