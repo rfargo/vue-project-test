@@ -4,6 +4,7 @@ interface ConsentOptions {
   errorTracking: boolean
 }
 
+// Augment the window interface for TypeScript
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void

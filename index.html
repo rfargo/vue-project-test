@@ -1,10 +1,42 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html> -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+
+    <script>
+      // Initialize dataLayer and set the default consent state to 'denied'
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        analytics_storage: 'denied',
+        security_storage: 'denied', // Add any others you need
+      })
+    </script>
+    <script
+      async
+      :src="`https://www.googletagmanager.com/gtm.js?id=${import.meta.env.VITE_GAID}`"
+    ></script>
   </head>
   <body>
     <div id="app"></div>

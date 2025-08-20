@@ -1,10 +1,93 @@
+<script setup lang="ts">
+import { ref, onMounted, type Ref } from 'vue'
+
+// Define the shape of our consent object
+interface Consent {
+  analytics: boolean
+  ads: boolean
+  errorTracking: boolean
+}
+
+// Augment the window interface for TypeScript
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void
+  }
+}
+
+const showBanner = ref(false)
+const consent: Ref<Consent> = ref({
+  analytics: false,
+  ads: false,
+  errorTracking: false,
+})
+
+/**
+ * Applies the current consent state to Google Tag Manager.
+ * This function will be called both for returning visitors and after a new choice is saved.
+ */
+function applyConsentToGTM(newConsent: Consent): void {
+  // Ensure gtag function exists before calling it
+  if (typeof window.gtag === 'function') {
+    window.gtag('consent', 'update', {
+      analytics_storage: newConsent.analytics ? 'granted' : 'denied',
+      ad_storage: newConsent.ads ? 'granted' : 'denied',
+      security_storage: newConsent.errorTracking ? 'granted' : 'denied',
+      // Note: There's no standard 'error_tracking' type in GTM's consent model.
+      // 'security_storage' is often used for this purpose.
+    })
+
+    console.log('GTM consent updated:', {
+      analytics_storage: newConsent.analytics ? 'granted' : 'denied',
+    })
+
+    // If analytics was just granted, push a custom event to trigger those tags
+    if (newConsent.analytics) {
+      window.dataLayer.push({
+        event: 'analytics_consent_granted',
+      })
+    }
+  }
+}
+
+/**
+ * Saves the user's consent choices to localStorage and applies them.
+ */
+function saveConsent(): void {
+  localStorage.setItem('cookie_consent', JSON.stringify(consent.value))
+  showBanner.value = false // Hide the banner
+  applyConsentToGTM(consent.value) // Apply the newly saved consent
+}
+
+/**
+ * When the component mounts, check for a previously saved consent decision.
+ */
+onMounted(() => {
+  const storedConsent = localStorage.getItem('cookie_consent')
+  if (storedConsent) {
+    // If a user has made a choice before, apply it immediately on page load
+    const savedConsent: Consent = JSON.parse(storedConsent)
+    consent.value = savedConsent
+    applyConsentToGTM(savedConsent)
+  } else {
+    // If no choice has been made, show the banner
+    showBanner.value = true
+  }
+})
+</script>
+
 <template>
-  <div v-if="!consentSaved" class="cookie-banner">
+  <div v-if="showBanner" class="cookie-banner">
     <p>We use cookies to improve your experience. Please set your preferences:</p>
     <div class="options">
-      <label><input type="checkbox" v-model="consent.analytics" /> Allow Analytics</label>
-      <label><input type="checkbox" v-model="consent.ads" /> Allow Ads</label>
-      <label><input type="checkbox" v-model="consent.errorTracking" /> Allow Error Tracking</label>
+      <label
+        ><input type="checkbox" v-model="consent.analytics" /> Allow Analytics & Performance</label
+      >
+      <label><input type="checkbox" v-model="consent.ads" /> Allow Advertising</label>
+      <label
+        ><input type="checkbox" v-model="consent.errorTracking" /> Allow Security & Error
+        Monitoring</label
+      >
     </div>
     <div class="actions">
       <button @click="saveConsent">Save Preferences</button>
@@ -12,63 +95,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-
-interface Consent {
-  analytics: boolean
-  ads: boolean
-  errorTracking: boolean
-}
-
-const consentSaved = ref(false)
-const consent = ref<Consent>({
-  analytics: false,
-  ads: false,
-  errorTracking: false,
-})
-
-onMounted(() => {
-  const stored = localStorage.getItem('cookie_consent')
-  if (stored) {
-    try {
-      consent.value = JSON.parse(stored)
-      consentSaved.value = true
-    } catch {
-      console.warn('Invalid consent JSON in localStorage')
-    }
-  }
-})
-
-function saveConsent() {
-  localStorage.setItem('cookie_consent', JSON.stringify(consent.value))
-  consentSaved.value = true
-
-  // Apply to GTM
-  window.gtag?.('consent', 'update', {
-    analytics_storage: consent.value.analytics ? 'granted' : 'denied',
-    ad_storage: consent.value.analytics ? 'granted' : 'denied',
-    security_storage: consent.value.errorTracking ? 'granted' : 'denied',
-    error_tracking: consent.value.errorTracking ? 'granted' : 'denied',
-    ad_personalization: consent.value.analytics ? 'granted' : 'denied',
-    ad_user_data: consent.value.analytics ? 'granted' : 'denied',
-  })
-
-  window.dataLayer = window.dataLayer || []
-  window.dataLayer.push({
-    event: 'default_consent',
-    consent: {
-      error_tracking: consent.value.errorTracking ? 'granted' : 'denied',
-    },
-  })
-
-  location.reload()
-
-  // window.dispatchEvent(new Event('cookie-consent-updated'))
-}
-</script>
-
 <style scoped>
+/* Your existing styles are fine */
 .cookie-banner {
   position: fixed;
   bottom: 20px;
@@ -79,6 +107,7 @@ function saveConsent() {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 9999;
+  color: black;
 }
 .options {
   display: flex;
@@ -93,8 +122,6 @@ function saveConsent() {
 button {
   padding: 0.5rem 1rem;
   cursor: pointer;
-}
-* {
   color: black;
 }
 </style>
