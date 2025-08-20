@@ -37,7 +37,13 @@ function applyConsentToGTM(newConsent: Consent): void {
       ad_user_data: newConsent.analytics ? 'granted' : 'denied',
     })
 
-    console.log('GTM consent updated!')
+    console.log('GTM consent updated!', {
+      analytics_storage: newConsent.analytics ? 'granted' : 'denied',
+      ad_storage: newConsent.ads ? 'granted' : 'denied',
+      security_storage: newConsent.errorTracking ? 'granted' : 'denied',
+      ad_personalization: newConsent.analytics ? 'granted' : 'denied',
+      ad_user_data: newConsent.analytics ? 'granted' : 'denied',
+    })
 
     // The dataLayer.push for a custom event is no longer needed to fire the GA4 tag.
     // GTM will automatically fire the queued tags after the 'consent update' command.
